@@ -2,7 +2,7 @@
  * multicast relay from one interface to the other
  * writen by Øivind Kure october 2011
  * Assume Linux IPv6 not portable to Win or Ipv4
- * Usage mc-client ff02::1 6888
+ * Usage mc-client ff02::1 6888 eth01
  * Example based on example code with the following header:
  * This sample demonstrates a Windows multicast client that works with either
  * IPv4 or IPv6, depending on the multicast address given.
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     char*      multicastPort;            /* Arg: Port */
     char*      interface;                // interfacename for outgoing data
     addrinfo* multicastAddr;            /* Multicast Address */
-    u_char mcttl = 1;					//sets TTL for multicast
+ //   u_char mcttl = 1;					//sets TTL for multicast
 //    struct sockaddr_in6  mc_addr_listen ;
     addrinfo*  localAddr;                /* Local address to bind to */
     addrinfo   hints          = { 0 };   /* Hints for name lookup */
@@ -130,9 +130,7 @@ int main(int argc, char* argv[])
     	DieWithError("setsockopt() failed to bind to interface");
     }
 
-    /* Join the multicast group. We do this seperately depending on whether we
-     * are using IPv4 or IPv6. WSAJoinLeaf is supposed to be IP version agnostic
-     * but it looks more complex than just duplicating the required code. */
+    /* Join the multicast group.  */
 
         struct ipv6_mreq multicastRequest;  /* Multicast address join structure */
 
@@ -142,17 +140,17 @@ int main(int argc, char* argv[])
                sizeof(multicastRequest.ipv6mr_multiaddr));
 
         /* Accept multicast from any interface */
-        multicastRequest.ipv6mr_interface = 0;
+        multicastRequest.ipv6mr_interface = ifr.ifr_ifindex;
 
         /* Join the multicast address */
         if ( setsockopt(sock, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, (char*) &multicastRequest, sizeof(multicastRequest)) != 0 )
         {
             DieWithError("setsockopt() join group failed");
         }
-        if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char*) &mcttl, sizeof(mcttl)) != 0 )
-                {
-                    DieWithError("setsockopt() ttl failed");
-                }
+   //     if ( setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char*) &mcttl, sizeof(mcttl)) != 0 )
+   //             {
+   //                 DieWithError("setsockopt() ttl failed");
+   //             }
 //    }
     
 
